@@ -43,6 +43,18 @@ $app->singleton(
 
 /*
 |--------------------------------------------------------------------------
+| Vercel Storage Fix
+|--------------------------------------------------------------------------
+|
+| Menentukan folder storage ke /tmp karena Vercel bersifat Read-Only.
+| Tanpa ini, Laravel akan Error 500 saat mencoba menulis log atau cache.
+|
+*/
+
+$app->useStoragePath($_ENV['APP_STORAGE'] ?? '/tmp');
+
+/*
+|--------------------------------------------------------------------------
 | Return The Application
 |--------------------------------------------------------------------------
 |
