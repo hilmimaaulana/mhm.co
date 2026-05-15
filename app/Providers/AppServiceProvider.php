@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Artisan; // Tambahkan ini
-use Illuminate\Support\Facades\Schema;  // Tambahkan ini
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,13 +15,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // JURUS OTOMATIS MIGRATION UNTUK VERCEL
-        // Jika pakai sqlite memory dan tabel belum ada, jalankan migrate
-        if (config('database.default') == 'sqlite' && !Schema::hasTable('products')) {
-            Artisan::call('migrate --force');
-            
-            // OPSIONAL: Kalau lo punya seeder buat isi data sepatu, tambahin ini:
-            // Artisan::call('db:seed --force');
+        // Cek jika menggunakan sqlite dan table products belum ada
+        if (config('database.default') == 'sqlite') {
+            if (!Schema::hasTable('products')) {
+                Artisan::call('migrate --force');
+                
+                // Jika lo punya data awal (seeder), buka komen di bawah ini:
+                // Artisan::call('db:seed --force');
+            }
         }
     }
 }
