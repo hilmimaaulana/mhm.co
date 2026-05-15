@@ -8,6 +8,5 @@
   "routes": [
     { "src": "/(.*)", "dest": "/api/index.php" }
   ],
-  "outputDirectory": "public",
-  "framework": null
+  "outputDirectory": "public"
 }
