@@ -21,10 +21,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // JURUS ANTI ERROR TABLE NOT FOUND
+        /*
+        |--------------------------------------------------------------------------
+        | Vercel Auto-Migration (Jurus Sapu Jagat)
+        |--------------------------------------------------------------------------
+        | Kode ini akan otomatis membuat semua tabel (users, products, orders, dll)
+        | saat website pertama kali diakses di Vercel.
+        */
+        
         if (config('database.default') == 'sqlite') {
-            if (!Schema::hasTable('products')) {
+            // Cek tabel 'users' sebagai indikator database kosong
+            if (!Schema::hasTable('users')) {
+                // Jalankan semua file migration yang ada di folder database/migrations
                 Artisan::call('migrate --force');
+                
+                // Jika kamu ingin data otomatis terisi (seperti data produk awal),
+                // kamu bisa aktifkan baris di bawah ini (pastikan sudah buat Seeder):
+                // Artisan::call('db:seed --force');
             }
         }
     }
