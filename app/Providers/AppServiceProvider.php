@@ -23,21 +23,30 @@ class AppServiceProvider extends ServiceProvider
     {
         /*
         |--------------------------------------------------------------------------
-        | Vercel Auto-Migration (Jurus Sapu Jagat)
+        | Vercel Auto-Migration (Supreme Version)
         |--------------------------------------------------------------------------
-        | Kode ini akan otomatis membuat semua tabel (users, products, orders, dll)
-        | saat website pertama kali diakses di Vercel.
+        | Kode ini otomatis menjalankan migrasi jika tabel utama belum ada.
+        | Menggunakan try-catch untuk menghindari syntax error pada SQLite Vercel.
         */
         
         if (config('database.default') == 'sqlite') {
-            // Cek tabel 'users' sebagai indikator database kosong
-            if (!Schema::hasTable('users')) {
-                // Jalankan semua file migration yang ada di folder database/migrations
-                Artisan::call('migrate --force');
-                
-                // Jika kamu ingin data otomatis terisi (seperti data produk awal),
-                // kamu bisa aktifkan baris di bawah ini (pastikan sudah buat Seeder):
-                // Artisan::call('db:seed --force');
+            // Cek tabel 'migrations' sebagai indikator utama database kosong
+            if (!Schema::hasTable('migrations')) {
+                try {
+                    // Jalankan semua file migration secara paksa
+                    Artisan::call('migrate --force');
+                } catch (\Exception $e) {
+                    // Mencatat error ke log jika migrasi gagal tapi web tetap jalan
+                    \Log::error("Gagal Migrasi Otomatis: " . $e->getMessage());
+                }
+            } else {
+                // Jika tabel migrations ada tapi ada tabel lain yang kurang (seperti tokens)
+                // Kita coba jalankan sekali lagi untuk melengkapi
+                try {
+                    Artisan::call('migrate --force');
+                } catch (\Exception $e) {
+                    // Abaikan jika tabel/kolom sudah ada
+                }
             }
         }
     }
