@@ -29,26 +29,29 @@ class AppServiceProvider extends ServiceProvider
         */
         
         if (config('database.default') == 'sqlite') {
-            // Kita cek tabel 'users' sebagai penanda apakah database sudah siap
+            // Kita cek tabel 'users' untuk memastikan database sudah ada isinya
             if (!Schema::hasTable('users')) {
                 try {
                     // 1. Jalankan Migrasi (Buat Tabel)
                     Artisan::call('migrate --force');
 
-                    // 2. Jalankan Seeder (Isi Data Produk & Foto)
+                    // 2. Jalankan Seeder (Buat User Admin & Data Produk)
+                    // Ini kunci supaya lo bisa login admin pertama kali
                     Artisan::call('db:seed --force');
                     
                 } catch (\Exception $e) {
-                    // Catat ke log jika ada error SQLite versi lama di Vercel
-                    \Log::error("Gagal Setup Database: " . $e->getMessage());
+                    \Log::error("Gagal Setup Database Awal: " . $e->getMessage());
                 }
             } else {
-                // Jika tabel sudah ada, kita tetap jalankan migrate untuk 
-                // memastikan kolom baru (seperti metode_pembayaran) terpasang
+                // Jika sudah ada tabel users, kita cek apakah ada kolom baru yang belum masuk
+                // (Penting agar fitur kelola produk/metode pembayaran tidak error)
                 try {
-                    Artisan::call('migrate --force');
+                    // Cek salah satu kolom yang baru lo tambahin di migration terakhir
+                    if (!Schema::hasColumn('orders', 'metode_pembayaran')) {
+                        Artisan::call('migrate --force');
+                    }
                 } catch (\Exception $e) {
-                    // Abaikan jika sudah up-to-date
+                    // Abaikan jika database sudah sinkron
                 }
             }
         }

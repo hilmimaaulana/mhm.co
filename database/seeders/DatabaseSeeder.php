@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Product;
 use App\Models\User;
 
@@ -14,43 +15,42 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. BUAT USER ADMIN (Biar lo bisa login ke dashboard di Vercel)
+        // 1. BUAT USER ADMIN
+        // Pakai Hash::make atau bcrypt biar password aman
         User::updateOrCreate(
-            ['email' => 'admin@gmail.com'],
+            ['email' => 'admin@gmail.com'], // Gunakan email ini untuk LOGIN
             [
-                'name' => 'Admin Sepatuku',
-                'password' => bcrypt('password123'), // Ganti sesuai keinginan
-                'is_admin' => true,
+                'name' => 'Admin MHM',
+                'password' => Hash::make('password123'), // Passwordnya: password123
+                'is_admin' => 1, // Kita set 1 (True)
             ]
         );
 
-        // 2. DAFTAR NAMA FOTO (Masukan semua nama file yang ada di public/img lo)
+        // 2. DAFTAR NAMA FOTO (SESUAIKAN DENGAN GITHUB LO)
+        // Karena di GitHub lo nama filenya sudah bersih (converse1.jpg, dll), 
+        // pastikan daftar di sini SAMA PERSIS dengan yang ada di folder public/img.
         $daftarFoto = [
-            '1777120472_thrasherbanner3.webp',
-            '1777122182_tharsher2.jpg',
-            '1777123446_converse1.jpg',
-            '1777815709_vansknu1.png',
-            '1777816208_converseonestar2.jpg',
-            '1777816345_vansauthentic1.webp',
-            '1777816450_vansera1.webp',
-            // Tambahkan nama file lainnya di bawah ini...
+            'converse1.jpg',
+            'conversebanner.jpg',
+            'converseonestar.jpg',
+            'foto1.jpg',
+            'bannerjaket2.jpg',
+            'tharsher2.jpg',
+            // Tambahin lagi semua yang ada di screenshot GitHub lo tadi gais...
         ];
 
-        // 3. PROSES INPUT OTOMATIS (Looping)
+        // 3. PROSES INPUT PRODUK OTOMATIS
         foreach ($daftarFoto as $key => $foto) {
             Product::updateOrCreate(
-                ['image' => $foto], // Cek biar gak double kalau di-seed ulang
+                ['image' => $foto], 
                 [
-                    'name' => 'Produk Sepatu ' . ($key + 1),
-                    'price' => 500000 + ($key * 15000), // Harga variasi otomatis
-                    'description' => 'Deskripsi kualitas tinggi untuk produk ' . $foto,
+                    'name' => 'Sepatu ' . ucfirst(str_replace(['.jpg', '.png', '.webp'], '', $foto)),
+                    'price' => 750000 + ($key * 10000),
+                    'description' => 'Produk original tersedia di MHM Store. Kualitas terjamin.',
                     'status' => 'tersedia',
                     'metode_pembayaran' => 'Transfer Bank',
                 ]
             );
         }
-
-        // Jika lo punya seeder user lain, bisa dibuka komennya di bawah:
-        // \App\Models\User::factory(10)->create();
     }
 }
