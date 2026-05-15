@@ -23,29 +23,32 @@ class AppServiceProvider extends ServiceProvider
     {
         /*
         |--------------------------------------------------------------------------
-        | Vercel Auto-Migration (Supreme Version)
+        | Vercel Auto-Migration & Seeding (Final Mission)
         |--------------------------------------------------------------------------
-        | Kode ini otomatis menjalankan migrasi jika tabel utama belum ada.
-        | Menggunakan try-catch untuk menghindari syntax error pada SQLite Vercel.
+        | Kode ini otomatis menjalankan migrasi DAN mengisi data (seeding).
         */
         
         if (config('database.default') == 'sqlite') {
-            // Cek tabel 'migrations' sebagai indikator utama database kosong
-            if (!Schema::hasTable('migrations')) {
+            // Kita cek tabel 'users' sebagai penanda apakah database sudah siap
+            if (!Schema::hasTable('users')) {
                 try {
-                    // Jalankan semua file migration secara paksa
+                    // 1. Jalankan Migrasi (Buat Tabel)
                     Artisan::call('migrate --force');
+
+                    // 2. Jalankan Seeder (Isi Data Produk & Foto)
+                    Artisan::call('db:seed --force');
+                    
                 } catch (\Exception $e) {
-                    // Mencatat error ke log jika migrasi gagal tapi web tetap jalan
-                    \Log::error("Gagal Migrasi Otomatis: " . $e->getMessage());
+                    // Catat ke log jika ada error SQLite versi lama di Vercel
+                    \Log::error("Gagal Setup Database: " . $e->getMessage());
                 }
             } else {
-                // Jika tabel migrations ada tapi ada tabel lain yang kurang (seperti tokens)
-                // Kita coba jalankan sekali lagi untuk melengkapi
+                // Jika tabel sudah ada, kita tetap jalankan migrate untuk 
+                // memastikan kolom baru (seperti metode_pembayaran) terpasang
                 try {
                     Artisan::call('migrate --force');
                 } catch (\Exception $e) {
-                    // Abaikan jika tabel/kolom sudah ada
+                    // Abaikan jika sudah up-to-date
                 }
             }
         }
