@@ -6,30 +6,36 @@ $app = new Illuminate\Foundation\Application(
 
 /*
 |--------------------------------------------------------------------------
-| Vercel Read-Only Fix
+| Vercel Read-Only Fix (PENTING)
 |--------------------------------------------------------------------------
 */
+
 // Tentukan path ke /tmp karena hanya folder ini yang bisa ditulis di Vercel
 $storagePath = '/tmp/storage';
 
-// Set path storage dan bootstrap cache secara paksa
+// Pastikan folder-folder wajib ada di /tmp sebelum Laravel mulai bekerja
+// Kita tambahkan folder 'sessions' agar fitur login/session tidak error
+if (!is_dir($storagePath . '/bootstrap/cache')) {
+    mkdir($storagePath . '/framework/views', 0755, true);
+    mkdir($storagePath . '/framework/cache', 0755, true);
+    mkdir($storagePath . '/framework/sessions', 0755, true);
+    mkdir($storagePath . '/bootstrap/cache', 0755, true);
+}
+
+// Set path storage secara paksa ke /tmp
 $app->useStoragePath($storagePath);
+
+// Paksa Laravel mencari manifest bootstrap (packages.php/services.php) di /tmp
 $app->bind('path.bootstrap', function () use ($storagePath) {
     return $storagePath . '/bootstrap';
 });
 
-// Setup folder jika belum ada (ini penting agar tidak error directory not found)
-if (!is_dir($storagePath . '/bootstrap/cache')) {
-    mkdir($storagePath . '/framework/views', 0755, true);
-    mkdir($storagePath . '/framework/cache', 0755, true);
-    mkdir($storagePath . '/bootstrap/cache', 0755, true);
-}
-
 /*
 |--------------------------------------------------------------------------
-| Bind Interfaces
+| Bind Interfaces (Fungsi Asli - JANGAN DIUBAH)
 |--------------------------------------------------------------------------
 */
+
 $app->singleton(
     Illuminate\Contracts\Http\Kernel::class,
     App\Http\Kernel::class
