@@ -43,15 +43,23 @@ $app->singleton(
 
 /*
 |--------------------------------------------------------------------------
-| Vercel Storage Fix
+| Vercel Storage & Cache Fix
 |--------------------------------------------------------------------------
 |
-| Menentukan folder storage ke /tmp karena Vercel bersifat Read-Only.
-| Tanpa ini, Laravel akan Error 500 saat mencoba menulis log atau cache.
+| Vercel bersifat Read-Only. Kita paksa Laravel menggunakan folder /tmp
+| untuk storage, view bootstrap, dan cache agar tidak error Permission Denied.
 |
 */
 
 $app->useStoragePath($_ENV['APP_STORAGE'] ?? '/tmp');
+
+// Tambahan: Paksa folder cache bootstrap (biar gak error STREAM_CACHE_PATH)
+$app->afterBootstrapping(
+    \Illuminate\Foundation\Bootstrap\LoadConfiguration::class,
+    function ($app) {
+        $app->make('config')->set('view.compiled', $_ENV['VIEW_COMPILED_PATH'] ?? '/tmp');
+    }
+);
 
 /*
 |--------------------------------------------------------------------------
