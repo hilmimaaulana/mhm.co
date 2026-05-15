@@ -8,20 +8,23 @@ use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Register any application services.
+     */
     public function register(): void
     {
         //
     }
 
+    /**
+     * Bootstrap any application services.
+     */
     public function boot(): void
     {
-        // Cek jika menggunakan sqlite dan table products belum ada
+        // JURUS ANTI ERROR TABLE NOT FOUND
         if (config('database.default') == 'sqlite') {
             if (!Schema::hasTable('products')) {
                 Artisan::call('migrate --force');
-                
-                // Jika lo punya data awal (seeder), buka komen di bawah ini:
-                // Artisan::call('db:seed --force');
             }
         }
     }
