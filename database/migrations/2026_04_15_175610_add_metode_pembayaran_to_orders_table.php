@@ -11,11 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            // Menambah kolom metode_pembayaran tipe string, boleh kosong (nullable)
-            // diletakkan setelah kolom 'status' agar rapi di database
-            $table->string('metode_pembayaran')->nullable()->after('status');
-        });
+        // Tambahkan pengecekan agar tidak error "Duplicate column"
+        if (!Schema::hasColumn('orders', 'metode_pembayaran')) {
+            Schema::table('orders', function (Blueprint $table) {
+                // Menambah kolom metode_pembayaran tipe string, boleh kosong (nullable)
+                // diletakkan setelah kolom 'status' agar rapi di database
+                $table->string('metode_pembayaran')->nullable()->after('status');
+            });
+        }
     }
 
     /**
@@ -23,9 +26,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            // Menghapus kolom jika migration di-rollback
-            $table->dropColumn('metode_pembayaran');
-        });
+        if (Schema::hasColumn('orders', 'metode_pembayaran')) {
+            Schema::table('orders', function (Blueprint $table) {
+                // Menghapus kolom jika migration di-rollback
+                $table->dropColumn('metode_pembayaran');
+            });
+        }
     }
 };
