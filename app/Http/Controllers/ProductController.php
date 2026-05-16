@@ -211,7 +211,6 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi diubah dari 'image' menjadi 'string' agar bisa menampung URL teks luar
         $request->validate([
             'nama' => 'required',
             'harga' => 'required|numeric',
@@ -222,7 +221,6 @@ class ProductController extends Controller
 
         $data = $request->only(['nama', 'harga', 'deskripsi']);
 
-        // Mengambil data input string URL langsung tanpa proses penyimpanan file fisik ke server
         if ($request->filled('gambar')) {
             $data['gambar'] = $request->input('gambar');
         }
@@ -231,18 +229,7 @@ class ProductController extends Controller
             $data['gambar_belakang'] = $request->input('gambar_belakang');
         }
 
-        // FIX UTAMA: Otomatis inject data 'kategori' berdasarkan text nama produk agar sinkron dengan query Toko/Landing Page
-        $namaLower = strtolower($request->nama);
-        if (str_contains($namaLower, 'vans')) {
-            $data['kategori'] = 'vans';
-        } elseif (str_contains($namaLower, 'converse')) {
-            $data['kategori'] = 'converse';
-        } elseif (str_contains($namaLower, 'thrasher')) {
-            $data['kategori'] = 'thrasher';
-        } else {
-            $data['kategori'] = 'others';
-        }
-
+        // AMAN: Kolom kategori dihapus total agar tidak memicu error SQLite kolom hilang
         Product::create($data);
         return redirect('/admin')->with('success', 'Produk berhasil ditambah!');
     }
@@ -255,7 +242,6 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Validasi diubah menjadi string URL opsional agar lancar di Vercel
         $request->validate([
             'nama' => 'required',
             'harga' => 'required|numeric',
@@ -267,7 +253,6 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $data = $request->only(['nama', 'harga', 'deskripsi']);
 
-        // Langsung timpa data string link URL di database tanpa fungsi unlink file fisik
         if ($request->filled('gambar')) {
             $data['gambar'] = $request->input('gambar');
         }
@@ -276,18 +261,7 @@ class ProductController extends Controller
             $data['gambar_belakang'] = $request->input('gambar_belakang');
         }
 
-        // Amankan update kategori juga ketika nama di-edit admin
-        $namaLower = strtolower($request->nama);
-        if (str_contains($namaLower, 'vans')) {
-            $data['kategori'] = 'vans';
-        } elseif (str_contains($namaLower, 'converse')) {
-            $data['kategori'] = 'converse';
-        } elseif (str_contains($namaLower, 'thrasher')) {
-            $data['kategori'] = 'thrasher';
-        } else {
-            $data['kategori'] = 'others';
-        }
-
+        // AMAN: Kolom kategori dihapus total agar tidak memicu error SQLite kolom hilang
         $product->update($data);
         return redirect('/admin')->with('success', 'Produk berhasil diupdate!');
     }
@@ -295,8 +269,6 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        
-        // Menghapus fungsi unlink() karena file disimpan berbentuk URL, menghindari error Read-Only Vercel
         $product->delete();
         return redirect('/admin')->with('success', 'Produk berhasil dihapus!');
     }
@@ -361,15 +333,11 @@ class ProductController extends Controller
         $request->validate(['payment_method' => 'required']);
         $cart = session()->get('cart');
         
-        /** * FIX: Mengubah redirect()->route('index') menjadi redirect('/') 
-         * untuk menghindari error 'Route [index] not defined'
-         */
         if(!$cart || count($cart) == 0) return redirect('/');
 
         $payment = $request->input('payment_method');
         $totalTagihan = 0; 
 
-        // Generate satu ID pesanan unik untuk satu transaksi
         $transactionGroup = 'MHM-' . strtoupper(uniqid());
 
         foreach($cart as $item) {
@@ -398,7 +366,6 @@ class ProductController extends Controller
 
     public function myOrders()
     {
-        // Menambahkan with('product') agar lebih efisien
         $orders = Order::with('product')->where('user_id', Auth::id())->latest()->get();
         return view('user_orders', compact('orders'));
     }
@@ -407,7 +374,6 @@ class ProductController extends Controller
     {
         $request->validate(['rating' => 'required|integer|min:1|max:5']);
         
-        // Proteksi agar user hanya bisa rate pesanannya sendiri
         $order = Order::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
         $order->update(['rating' => $request->rating]);
         
