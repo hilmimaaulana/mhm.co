@@ -211,7 +211,7 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        // FIX: Validasi diubah dari 'image' menjadi 'string' agar bisa menampung URL teks luar
+        // Validasi diubah dari 'image' menjadi 'string' agar bisa menampung URL teks luar
         $request->validate([
             'nama' => 'required',
             'harga' => 'required|numeric',
@@ -222,13 +222,25 @@ class ProductController extends Controller
 
         $data = $request->only(['nama', 'harga', 'deskripsi']);
 
-        // FIX: Mengambil data input string URL langsung tanpa proses penyimpanan file fisik ke server
+        // Mengambil data input string URL langsung tanpa proses penyimpanan file fisik ke server
         if ($request->filled('gambar')) {
             $data['gambar'] = $request->input('gambar');
         }
 
         if ($request->filled('gambar_belakang')) {
             $data['gambar_belakang'] = $request->input('gambar_belakang');
+        }
+
+        // FIX UTAMA: Otomatis inject data 'kategori' berdasarkan text nama produk agar sinkron dengan query Toko/Landing Page
+        $namaLower = strtolower($request->nama);
+        if (str_contains($namaLower, 'vans')) {
+            $data['kategori'] = 'vans';
+        } elseif (str_contains($namaLower, 'converse')) {
+            $data['kategori'] = 'converse';
+        } elseif (str_contains($namaLower, 'thrasher')) {
+            $data['kategori'] = 'thrasher';
+        } else {
+            $data['kategori'] = 'others';
         }
 
         Product::create($data);
@@ -243,7 +255,7 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
-        // FIX: Validasi diubah menjadi string URL opsional agar lancar di Vercel
+        // Validasi diubah menjadi string URL opsional agar lancar di Vercel
         $request->validate([
             'nama' => 'required',
             'harga' => 'required|numeric',
@@ -255,13 +267,25 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $data = $request->only(['nama', 'harga', 'deskripsi']);
 
-        // FIX: Langsung timpa data string link URL di database tanpa fungsi unlink file fisik
+        // Langsung timpa data string link URL di database tanpa fungsi unlink file fisik
         if ($request->filled('gambar')) {
             $data['gambar'] = $request->input('gambar');
         }
 
         if ($request->filled('gambar_belakang')) {
             $data['gambar_belakang'] = $request->input('gambar_belakang');
+        }
+
+        // Amankan update kategori juga ketika nama di-edit admin
+        $namaLower = strtolower($request->nama);
+        if (str_contains($namaLower, 'vans')) {
+            $data['kategori'] = 'vans';
+        } elseif (str_contains($namaLower, 'converse')) {
+            $data['kategori'] = 'converse';
+        } elseif (str_contains($namaLower, 'thrasher')) {
+            $data['kategori'] = 'thrasher';
+        } else {
+            $data['kategori'] = 'others';
         }
 
         $product->update($data);
@@ -272,7 +296,7 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         
-        // FIX: Menghapus fungsi unlink() karena file disimpan berbentuk URL, menghindari error Read-Only Vercel
+        // Menghapus fungsi unlink() karena file disimpan berbentuk URL, menghindari error Read-Only Vercel
         $product->delete();
         return redirect('/admin')->with('success', 'Produk berhasil dihapus!');
     }
