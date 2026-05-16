@@ -16,15 +16,15 @@ class Product extends Model
 
     /**
      * Atribut yang dapat diisi secara massal (Mass Assignable).
-     * Ini untuk mengatasi error MassAssignmentException.
+     * AMAN: Kolom 'kategori' sudah dihapus total dari sini jirr, 
+     * biar sinkron sama database SQLite Vercel lo yang gak punya kolom kategori.
      */
     protected $fillable = [
         'nama',           // Nama produk
         'harga',          // Harga produk
-        'gambar',         // Gambar tampak depan
-        'gambar_belakang', // Gambar tampak belakang untuk fitur ganti foto
+        'gambar',         // Gambar tampak depan (Link Postimages)
+        'gambar_belakang', // Gambar tampak belakang untuk fitur ganti foto (Link Postimages)
         'deskripsi',      // Deskripsi produk
-        'kategori',       // Opsional: Jika kamu ingin simpan kategori di DB
     ];
 
     /**
