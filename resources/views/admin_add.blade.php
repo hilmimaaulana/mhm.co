@@ -64,7 +64,7 @@
                 <p class="text-zinc-500 mt-2">tambahkan item baru ke koleksi mhm.co</p>
             </header>
 
-            <form action="/admin/store" method="POST" enctype="multipart/form-data" class="space-y-8">
+            <form action="/admin/store" method="POST" class="space-y-8">
                 @csrf
                 
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -108,25 +108,27 @@
 
                             <div class="space-y-6">
                                 <div class="space-y-3">
-                                    <label class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 block text-center">front view</label>
-                                    <div class="relative group cursor-pointer border-2 border-dashed border-zinc-200 rounded-2xl p-4 hover:border-black hover:bg-zinc-50 transition">
-                                        <input type="file" name="gambar" required onchange="previewImage(this, 'preview-front')" 
-                                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                                        <div id="preview-front" class="flex flex-col items-center justify-center min-h-[120px]">
+                                    <label class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 block">front view image url</label>
+                                    <input type="text" name="gambar" required oninput="previewUrlImage(this, 'preview-front')" placeholder="Paste Direct Link (ex: https://i.ibb.co/xyz.jpg)" 
+                                        class="w-full bg-zinc-50 border border-zinc-200 px-4 py-2.5 rounded-xl text-xs focus:ring-2 focus:ring-black focus:border-black outline-none transition">
+                                    
+                                    <div class="border-2 border-dashed border-zinc-200 rounded-2xl p-4 bg-zinc-50 transition min-h-[140px] flex flex-col items-center justify-center overflow-hidden">
+                                        <div id="preview-front" class="w-full flex flex-col items-center justify-center text-center">
                                             <i data-lucide="camera" class="w-8 h-8 text-zinc-300 mb-2"></i>
-                                            <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">upload front image</span>
+                                            <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">Waiting for URL...</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="space-y-3">
-                                    <label class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 block text-center">back view</label>
-                                    <div class="relative group cursor-pointer border-2 border-dashed border-zinc-200 rounded-2xl p-4 hover:border-black hover:bg-zinc-50 transition">
-                                        <input type="file" name="gambar_belakang" required onchange="previewImage(this, 'preview-back')" 
-                                            class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                                        <div id="preview-back" class="flex flex-col items-center justify-center min-h-[120px]">
+                                    <label class="text-[11px] font-bold uppercase tracking-widest text-zinc-400 block">back view image url</label>
+                                    <input type="text" name="gambar_belakang" oninput="previewUrlImage(this, 'preview-back')" placeholder="Paste Direct Link (ex: https://i.ibb.co/abc.jpg)" 
+                                        class="w-full bg-zinc-50 border border-zinc-200 px-4 py-2.5 rounded-xl text-xs focus:ring-2 focus:ring-black focus:border-black outline-none transition">
+                                    
+                                    <div class="border-2 border-dashed border-zinc-200 rounded-2xl p-4 bg-zinc-50 transition min-h-[140px] flex flex-col items-center justify-center overflow-hidden">
+                                        <div id="preview-back" class="w-full flex flex-col items-center justify-center text-center">
                                             <i data-lucide="camera" class="w-8 h-8 text-zinc-300 mb-2"></i>
-                                            <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">upload back image</span>
+                                            <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">Waiting for URL...</span>
                                         </div>
                                     </div>
                                 </div>
@@ -173,19 +175,34 @@
             overlay.classList.toggle('hidden');
         }
 
-        // Image Preview Logic
-        function previewImage(input, previewId) {
+        // FIX: Logika Baru untuk mendeteksi teks string URL Gambar secara Real-Time
+        function previewUrlImage(input, previewId) {
             const previewContainer = document.getElementById(previewId);
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewContainer.innerHTML = `
-                        <img src="${e.target.result}" class="w-full h-32 object-contain rounded-lg">
-                        <span class="text-[9px] text-emerald-500 font-bold uppercase mt-2">Ready to upload</span>
-                    `;
-                }
-                reader.readAsDataURL(input.files[0]);
+            const urlString = input.value.trim();
+            
+            if (urlString !== "") {
+                previewContainer.innerHTML = `
+                    <img src="${urlString}" class="w-full h-32 object-contain rounded-lg" onerror="imageLoadError(this, '${previewId}')">
+                    <span class="text-[9px] text-emerald-500 font-bold uppercase mt-2">Link Sync Successfully</span>
+                `;
+            } else {
+                // Balikkan ke kondisi kosong jika input dihapus
+                previewContainer.innerHTML = `
+                    <i data-lucide="camera" class="w-8 h-8 text-zinc-300 mb-2"></i>
+                    <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-tighter">Waiting for URL...</span>
+                `;
+                lucide.createIcons();
             }
+        }
+
+        // Fitur penangan pelindung jika link mati atau typo
+        function imageLoadError(img, previewId) {
+            const previewContainer = document.getElementById(previewId);
+            previewContainer.innerHTML = `
+                <i data-lucide="alert-triangle" class="w-8 h-8 text-amber-500 mb-2"></i>
+                <span class="text-[10px] font-bold text-amber-500 uppercase tracking-tighter">Invalid Image Link / URL Error</span>
+            `;
+            lucide.createIcons();
         }
     </script>
 </body>

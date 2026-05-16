@@ -211,28 +211,24 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        // FIX: Validasi diubah dari 'image' menjadi 'string' agar bisa menampung URL teks luar
         $request->validate([
             'nama' => 'required',
             'harga' => 'required|numeric',
             'deskripsi' => 'required',
-            'gambar' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'gambar_belakang' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
+            'gambar' => 'required|string',
+            'gambar_belakang' => 'nullable|string'
         ]);
 
         $data = $request->only(['nama', 'harga', 'deskripsi']);
 
-        if ($request->hasFile('gambar')) {
-            $file = $request->file('gambar');
-            $nama_file = time() . "_" . $file->getClientOriginalName();
-            $file->move(public_path('img'), $nama_file);
-            $data['gambar'] = $nama_file;
+        // FIX: Mengambil data input string URL langsung tanpa proses penyimpanan file fisik ke server
+        if ($request->filled('gambar')) {
+            $data['gambar'] = $request->input('gambar');
         }
 
-        if ($request->hasFile('gambar_belakang')) {
-            $fileB = $request->file('gambar_belakang');
-            $nama_fileB = "back_" . time() . "_" . $fileB->getClientOriginalName();
-            $fileB->move(public_path('img'), $nama_fileB);
-            $data['gambar_belakang'] = $nama_fileB;
+        if ($request->filled('gambar_belakang')) {
+            $data['gambar_belakang'] = $request->input('gambar_belakang');
         }
 
         Product::create($data);
@@ -247,35 +243,25 @@ class ProductController extends Controller
 
     public function update(Request $request, $id)
     {
+        // FIX: Validasi diubah menjadi string URL opsional agar lancar di Vercel
         $request->validate([
             'nama' => 'required',
             'harga' => 'required|numeric',
             'deskripsi' => 'required',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'gambar_belakang' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
+            'gambar' => 'nullable|string',
+            'gambar_belakang' => 'nullable|string'
         ]);
 
         $product = Product::findOrFail($id);
         $data = $request->only(['nama', 'harga', 'deskripsi']);
 
-        if ($request->hasFile('gambar')) {
-            if ($product->gambar && file_exists(public_path('img/' . $product->gambar))) {
-                unlink(public_path('img/' . $product->gambar));
-            }
-            $file = $request->file('gambar');
-            $nama_file = time() . "_" . $file->getClientOriginalName();
-            $file->move(public_path('img'), $nama_file);
-            $data['gambar'] = $nama_file;
+        // FIX: Langsung timpa data string link URL di database tanpa fungsi unlink file fisik
+        if ($request->filled('gambar')) {
+            $data['gambar'] = $request->input('gambar');
         }
 
-        if ($request->hasFile('gambar_belakang')) {
-            if ($product->gambar_belakang && file_exists(public_path('img/' . $product->gambar_belakang))) {
-                unlink(public_path('img/' . $product->gambar_belakang));
-            }
-            $fileB = $request->file('gambar_belakang');
-            $nama_fileB = "back_" . time() . "_" . $fileB->getClientOriginalName();
-            $fileB->move(public_path('img'), $nama_fileB);
-            $data['gambar_belakang'] = $nama_fileB;
+        if ($request->filled('gambar_belakang')) {
+            $data['gambar_belakang'] = $request->input('gambar_belakang');
         }
 
         $product->update($data);
@@ -286,13 +272,7 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         
-        if ($product->gambar && file_exists(public_path('img/' . $product->gambar))) {
-            unlink(public_path('img/' . $product->gambar));
-        }
-        if ($product->gambar_belakang && file_exists(public_path('img/' . $product->gambar_belakang))) {
-            unlink(public_path('img/' . $product->gambar_belakang));
-        }
-
+        // FIX: Menghapus fungsi unlink() karena file disimpan berbentuk URL, menghindari error Read-Only Vercel
         $product->delete();
         return redirect('/admin')->with('success', 'Produk berhasil dihapus!');
     }
