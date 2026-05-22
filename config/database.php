@@ -62,17 +62,18 @@ return [
             ]) : [],
         ],
 
-        // --- FIX SOLUSI SAKTI SUPABASE POOLER VERCEL ---
+        // --- FIX REVOLUSI SUPABASE POOLER VERCEL ---
         'pgsql' => [
             'driver' => 'pgsql',
-            // 🔥 FIX UTAMA: 'url' WAJIB di-set null gais! Biar Laravel tidak membaca string URL yang bikin eror tenant!
             'url' => null, 
             
-            // Kita hardcode langsung jalurnya di sini demi menghancurkan cache Vercel lo jirr!
+            // Mengunci jalur utama host & port pooler baru
             'host' => 'aws-1-ap-southeast-1.pooler.supabase.com',
             'port' => '6543',
-            'database' => 'postgres',
-            'username' => 'postgres.mrpehptxlnpxhfqoifu',
+            
+            // 🔥 PERBAIKAN UTAMA: Gabungan titik dipindahkan ke 'database', dan 'username' dibuat murni!
+            'database' => 'postgres.mrpehptxlnpxhfqoifu', 
+            'username' => 'postgres',                     
             'password' => 'xyYK8LNkf9xa6J6H',
             
             'charset' => 'utf8',
