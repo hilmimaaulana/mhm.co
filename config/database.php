@@ -13,9 +13,10 @@ return [
     | to use as your default connection for all database work. Of course
     | you may use many connections at once using the Database library.
     |
-    | */
+    */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    // 🔥 AMAN JIRR! Default diganti ke 'pgsql' agar jika env Vercel delay, dia tetep nembak Supabase!
+    'default' => env('DB_CONNECTION', 'pgsql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -65,7 +66,7 @@ return [
         // --- FIX SOLUSI PAMUNGKAS SUPABASE POOLER VERCEL ---
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => null, // Kita matikan 'url' agar tidak bentrok atau mengabaikan ENV utama lo gais!
+            'url' => null, 
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'forge'),
@@ -76,6 +77,11 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+            
+            // 🔥 TAMBAHAN SAKTI: Memaksa Laravel mengirimkan Tenant/Project ID agar lolos dari gerbang PgBouncer Supabase!
+            'options' => [
+                PDO::ATTR_EMULATE_PREPARES => true,
+            ],
         ],
 
         'sqlsrv' => [
