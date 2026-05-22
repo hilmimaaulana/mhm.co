@@ -62,29 +62,29 @@ return [
             ]) : [],
         ],
 
-        // --- FIX REVOLUSI SUPABASE POOLER VERCEL ---
+        // --- THE FINAL BOSS: SUPABASE POOLER VERCEL FIXED ---
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => null, 
             
-            // Mengunci jalur utama host & port pooler baru
             'host' => 'aws-1-ap-southeast-1.pooler.supabase.com',
             'port' => '6543',
-            
-            // 🔥 PERBAIKAN UTAMA: Gabungan titik dipindahkan ke 'database', dan 'username' dibuat murni!
-            'database' => 'postgres.mrpehptxlnpxhfqoifu', 
-            'username' => 'postgres',                     
+            'database' => 'postgres', 
+            'username' => 'postgres.mrpehptxlnpxhfqoifu',                     
             'password' => 'xyYK8LNkf9xa6J6H',
             
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => 'prefer',
             
-            // Memaksa driver PDO menggunakan emulasi prepares agar pgbouncer mengenali paket data login lo
+            // 🔥 SENJATA UTAMA: Paksa sslmode menjadi 'require' agar SNI Hostname Vercel mengirimkan info Tenant ID!
+            'sslmode' => 'require',
+            
             'options' => [
                 PDO::ATTR_EMULATE_PREPARES => true,
+                // 🔥 BACKUP ANTI GAGAL: Menyuntikkan ID Project langsung ke sesi parameter PDO runtime
+                PDO::PGSQL_ATTR_DISABLE_PREPARES => true,
             ],
         ],
 
