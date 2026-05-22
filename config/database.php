@@ -65,14 +65,16 @@ return [
         // --- FIX SOLUSI SAKTI SUPABASE POOLER VERCEL ---
         'pgsql' => [
             'driver' => 'pgsql',
-            // 🔥 TRICK UTAMA: Kita paksa 'url' membaca format Connection String murni Supabase lo gais!
-            // Format ini secara otomatis membypass bug parsing username/database di Laravel & Vercel.
-            'url' => 'postgresql://postgres.mrpehptxlnpxhfqoifu:xyYK8LNkf9xa6J6H@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres',
-            'host' => env('DB_HOST', 'aws-1-ap-southeast-1.pooler.supabase.com'),
-            'port' => env('DB_PORT', '6543'),
-            'database' => env('DB_DATABASE', 'postgres'),
-            'username' => env('DB_USERNAME', 'postgres.mrpehptxlnpxhfqoifu'),
-            'password' => env('DB_PASSWORD', 'xyYK8LNkf9xa6J6H'),
+            // 🔥 FIX UTAMA: 'url' WAJIB di-set null gais! Biar Laravel tidak membaca string URL yang bikin eror tenant!
+            'url' => null, 
+            
+            // Kita hardcode langsung jalurnya di sini demi menghancurkan cache Vercel lo jirr!
+            'host' => 'aws-1-ap-southeast-1.pooler.supabase.com',
+            'port' => '6543',
+            'database' => 'postgres',
+            'username' => 'postgres.mrpehptxlnpxhfqoifu',
+            'password' => 'xyYK8LNkf9xa6J6H',
+            
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
