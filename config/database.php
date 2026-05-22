@@ -62,31 +62,23 @@ return [
             ]) : [],
         ],
 
-        // --- FIX TOTAL: JALUR DIRECT PORT 5432 ANTI-TENANT ERROR ---
+        // --- FIX REVOLUSI CLOUD NATIVE: MENGIKUTI STANDAR VERCEL & SUPABASE POOLER ---
         'pgsql' => [
             'driver' => 'pgsql',
             
-            // ❌ Tetap dikunci null agar mengabaikan DATABASE_URL bawaan dashboard Vercel
-            'url' => null, 
+            // 🔥 KUNCI UTAMA: Biarkan Laravel membaca string murni langsung dari dashboard Vercel tanpa dipecah!
+            'url' => env('DATABASE_URL'), 
             
-            // 🔥 SOLUSI SAKTI: Menggunakan Direct Host & Port standar Postgres 5432
-            'host' => 'db.mrpehptxlnpxhfqoifu.supabase.com', 
-            'port' => '5432', 
-            
-            // Kredensial dibersihkan total tanpa tanda titik-titik club jirr!
-            'database' => 'postgres', 
-            'username' => 'postgres', 
-            'password' => 'xyYK8LNkf9xa6J6H', 
-            
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
-            
-            'options' => [
-                PDO::ATTR_EMULATE_PREPARES => true,
-            ],
         ],
 
         'sqlsrv' => [
