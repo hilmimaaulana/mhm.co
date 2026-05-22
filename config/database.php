@@ -62,34 +62,30 @@ return [
             ]) : [],
         ],
 
-        // --- KUNCI MATI: ANTI OVERRIDE VERCEL ---
+        // --- FIX TOTAL: JALUR DIRECT PORT 5432 ANTI-TENANT ERROR ---
         'pgsql' => [
             'driver' => 'pgsql',
             
-            // ❌ JANGAN DIGANTI! Wajib di-set false/null agar Laravel mengabaikan variabel DATABASE_URL dari dashboard Vercel!
+            // ❌ Tetap dikunci null agar mengabaikan DATABASE_URL bawaan dashboard Vercel
             'url' => null, 
             
-            // Kita pecah komponennya secara terpisah gais
-            'host' => 'aws-1-ap-southeast-1.pooler.supabase.com', //
-            'port' => '6543', //
-            'database' => 'postgres', //
-            'username' => 'postgres.mrpehptxlnpxhfqoifu', //
-            'password' => 'xyYK8LNkf9xa6J6H', //
+            // 🔥 SOLUSI SAKTI: Menggunakan Direct Host & Port standar Postgres 5432
+            'host' => 'db.mrpehptxlnpxhfqoifu.supabase.co', 
+            'port' => '5432', 
+            
+            // Kredensial dibersihkan total tanpa tanda titik-titik club jirr!
+            'database' => 'postgres', 
+            'username' => 'postgres', 
+            'password' => 'xyYK8LNkf9xa6J6H', 
             
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            
-            // Mode SSL 'prefer' dikombinasikan dengan pemisahan parameter murni di bawah gais
             'sslmode' => 'prefer',
             
             'options' => [
-                // Mengaktifkan emulasi agar dibaca sebagai query standar oleh PgBouncer Supabase
                 PDO::ATTR_EMULATE_PREPARES => true,
-                
-                // Menghindari bug SNI/ENOIDENTIFIER pada koneksi cloud serverless
-                PDO::PGSQL_ATTR_DISABLE_PREPARES => false,
             ],
         ],
 
@@ -147,7 +143,7 @@ return [
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
             'port' => '6379',
-            'database' => env('REDIS_DB', '0'),
+            'database' => env('DB_DATABASE', '0'),
         ],
 
         'cache' => [
