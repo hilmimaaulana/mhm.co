@@ -70,7 +70,7 @@ return [
             'url' => null, 
             
             // 🔥 SOLUSI SAKTI: Menggunakan Direct Host & Port standar Postgres 5432
-            'host' => 'db.mrpehptxlnpxhfqoifu.supabase.co', 
+            'host' => 'db.mrpehptxlnpxhfqoifu.supabase.com', 
             'port' => '5432', 
             
             // Kredensial dibersihkan total tanpa tanda titik-titik club jirr!
