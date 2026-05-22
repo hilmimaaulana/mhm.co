@@ -15,7 +15,6 @@ return [
     |
     */
 
-    // 🔥 AMAN JIRR! Default diganti ke 'pgsql' agar jika env Vercel delay, dia tetep nembak Supabase!
     'default' => env('DB_CONNECTION', 'pgsql'),
 
     /*
@@ -63,22 +62,24 @@ return [
             ]) : [],
         ],
 
-        // --- FIX SOLUSI PAMUNGKAS SUPABASE POOLER VERCEL ---
+        // --- FIX SOLUSI SAKTI SUPABASE POOLER VERCEL ---
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => null, 
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
+            // 🔥 TRICK UTAMA: Kita paksa 'url' membaca format Connection String murni Supabase lo gais!
+            // Format ini secara otomatis membypass bug parsing username/database di Laravel & Vercel.
+            'url' => 'postgresql://postgres.mrpehptxlnpxhfqoifu:xyYK8LNkf9xa6J6H@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres',
+            'host' => env('DB_HOST', 'aws-1-ap-southeast-1.pooler.supabase.com'),
+            'port' => env('DB_PORT', '6543'),
+            'database' => env('DB_DATABASE', 'postgres'),
+            'username' => env('DB_USERNAME', 'postgres.mrpehptxlnpxhfqoifu'),
+            'password' => env('DB_PASSWORD', 'xyYK8LNkf9xa6J6H'),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
             
-            // 🔥 TAMBAHAN SAKTI: Memaksa Laravel mengirimkan Tenant/Project ID agar lolos dari gerbang PgBouncer Supabase!
+            // Memaksa driver PDO menggunakan emulasi prepares agar pgbouncer mengenali paket data login lo
             'options' => [
                 PDO::ATTR_EMULATE_PREPARES => true,
             ],
