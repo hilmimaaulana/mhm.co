@@ -46,7 +46,7 @@ return [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '3306'),
+            'port' => '3306',
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),
@@ -62,29 +62,34 @@ return [
             ]) : [],
         ],
 
-        // --- THE FINAL BOSS: SUPABASE POOLER VERCEL FIXED ---
+        // --- KUNCI MATI: ANTI OVERRIDE VERCEL ---
         'pgsql' => [
             'driver' => 'pgsql',
+            
+            // ❌ JANGAN DIGANTI! Wajib di-set false/null agar Laravel mengabaikan variabel DATABASE_URL dari dashboard Vercel!
             'url' => null, 
             
-            'host' => 'aws-1-ap-southeast-1.pooler.supabase.com',
-            'port' => '6543',
-            'database' => 'postgres', 
-            'username' => 'postgres.mrpehptxlnpxhfqoifu',                     
-            'password' => 'xyYK8LNkf9xa6J6H',
+            // Kita pecah komponennya secara terpisah gais
+            'host' => 'aws-1-ap-southeast-1.pooler.supabase.com', //
+            'port' => '6543', //
+            'database' => 'postgres', //
+            'username' => 'postgres.mrpehptxlnpxhfqoifu', //
+            'password' => 'xyYK8LNkf9xa6J6H', //
             
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
             
-            // 🔥 SENJATA UTAMA: Paksa sslmode menjadi 'require' agar SNI Hostname Vercel mengirimkan info Tenant ID!
-            'sslmode' => 'require',
+            // Mode SSL 'prefer' dikombinasikan dengan pemisahan parameter murni di bawah gais
+            'sslmode' => 'prefer',
             
             'options' => [
+                // Mengaktifkan emulasi agar dibaca sebagai query standar oleh PgBouncer Supabase
                 PDO::ATTR_EMULATE_PREPARES => true,
-                // 🔥 BACKUP ANTI GAGAL: Menyuntikkan ID Project langsung ke sesi parameter PDO runtime
-                PDO::PGSQL_ATTR_DISABLE_PREPARES => true,
+                
+                // Menghindari bug SNI/ENOIDENTIFIER pada koneksi cloud serverless
+                PDO::PGSQL_ATTR_DISABLE_PREPARES => false,
             ],
         ],
 
@@ -92,7 +97,7 @@ return [
             'driver' => 'sqlsrv',
             'url' => env('DATABASE_URL'),
             'host' => env('DB_HOST', 'localhost'),
-            'port' => env('DB_PORT', '1433'),
+            'port' => '1433',
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),
@@ -141,7 +146,7 @@ return [
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
+            'port' => '6379',
             'database' => env('REDIS_DB', '0'),
         ],
 
@@ -150,7 +155,7 @@ return [
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
+            'port' => '6379',
             'database' => env('REDIS_CACHE_DB', '1'),
         ],
 
